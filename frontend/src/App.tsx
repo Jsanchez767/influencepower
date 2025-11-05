@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchOfficials } from './services/api';
 import type { Official } from './types';
 
