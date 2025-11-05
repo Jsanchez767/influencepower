@@ -1,0 +1,5 @@
+.env
+*.log
+*.out
+backend
+tmp/
