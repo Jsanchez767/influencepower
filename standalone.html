@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicago City Council Chamber</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+        
+        .header .city-name {
+            color: #2563eb;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .chamber-container {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            margin-bottom: 40px;
+        }
+        
+        .svg-container {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+        
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Polaroid card styling */
+        .seat-card {
+            cursor: pointer;
+        }
+        
+        .card-bg {
+            fill: white;
+            stroke: #e5e7eb;
+            stroke-width: 3;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.12));
+        }
+        
+        .card-photo {
+            clip-path: inset(0 round 4px);
+        }
+        
+        .card-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 7px;
+            font-weight: 700;
+            fill: #1a1a1a;
+        }
+        
+        .card-ward {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 6px;
+            font-weight: 600;
+            fill: #6b7280;
+        }
+        
+        
+        .party-democrat {
+            fill: #2563eb;
+        }
+        
+        .party-republican {
+            fill: #dc2626;
+        }
+        
+        .party-independent {
+            fill: #8b5cf6;
+        }
+        
+        /* Mayor & Clerk special cards */
+        .mayor-card, .clerk-card {
+            cursor: pointer;
+        }
+        
+        .mayor-card .card-bg {
+            fill: #3b82f6;
+            stroke: #2563eb;
+        }
+        
+        .clerk-card .card-bg {
+            fill: #10b981;
+            stroke: #059669;
+        }
+        
+        .mayor-card .card-name,
+        .mayor-card .card-ward,
+        .clerk-card .card-name,
+        .clerk-card .card-ward {
+            fill: white;
+        }
+        
+        /* Filter buttons */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 12px 24px;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: -0.01em;
+        }
+        
+        .filter-btn.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .modal-header {
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-body {
+            padding: 32px;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f3f4f6;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #6b7280;
+        }
+        
+        .modal-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        
+        .modal-subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            min-width: 100px;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .party-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        
+        .party-badge.democrat {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .party-badge.republican {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .party-badge.independent {
+            background: #ede9fe;
+            color: #6b21a8;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.875rem;
+            }
+            
+            .chamber-container {
+                padding: 30px 20px;
+            }
+            
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const officials = [
+            { id: 0, name: "Rahm Emanuel", ward: "Mayor", party: "Democrat", role: "Mayor", contact: "(312) 744-3300", email: "mayor@cityofchicago.org" },
+            { id: 1, name: "Daniel La Spata", ward: "Ward 1", party: "Democrat", role: "Alderman", contact: "(773) 278-0101", email: "ward01@cityofchicago.org" },
+            { id: 2, name: "Brian Hopkins", ward: "Ward 2", party: "Democrat", role: "Alderman", contact: "(312) 643-2299", email: "ward02@cityofchicago.org" },
+            { id: 3, name: "Pat Dowell", ward: "Ward 3", party: "Democrat", role: "Alderman", contact: "(773) 373-9273", email: "ward03@cityofchicago.org" },
+            { id: 4, name: "Sophia King", ward: "Ward 4", party: "Democrat", role: "Alderman", contact: "(773) 536-8103", email: "ward04@cityofchicago.org" },
+            { id: 5, name: "Leslie Hairston", ward: "Ward 5", party: "Democrat", role: "Alderman", contact: "(773) 324-5555", email: "ward05@cityofchicago.org" },
+            { id: 6, name: "Roderick Sawyer", ward: "Ward 6", party: "Democrat", role: "Alderman", contact: "(773) 635-0006", email: "ward06@cityofchicago.org" },
+            { id: 7, name: "Gregory Mitchell", ward: "Ward 7", party: "Democrat", role: "Alderman", contact: "(773) 731-7777", email: "ward07@cityofchicago.org" },
+            { id: 8, name: "Michelle Harris", ward: "Ward 8", party: "Democrat", role: "Alderman", contact: "(773) 874-3300", email: "ward08@cityofchicago.org" },
+            { id: 9, name: "Anthony Beale", ward: "Ward 9", party: "Democrat", role: "Alderman", contact: "(773) 785-1100", email: "ward09@cityofchicago.org" },
+            { id: 10, name: "Susan Sadlowski Garza", ward: "Ward 10", party: "Democrat", role: "Alderman", contact: "(773) 768-8138", email: "ward10@cityofchicago.org" },
+            { id: 11, name: "Patrick Daley Thompson", ward: "Ward 11", party: "Democrat", role: "Alderman", contact: "(773) 731-7706", email: "ward11@cityofchicago.org" },
+            { id: 12, name: "George Cardenas", ward: "Ward 12", party: "Democrat", role: "Alderman", contact: "(773) 523-8250", email: "ward12@cityofchicago.org" },
+            { id: 13, name: "Marty Quinn", ward: "Ward 13", party: "Democrat", role: "Alderman", contact: "(773) 585-8000", email: "ward13@cityofchicago.org" },
+            { id: 14, name: "Ed Burke", ward: "Ward 14", party: "Democrat", role: "Alderman", contact: "(773) 823-1549", email: "ward14@cityofchicago.org" },
+            { id: 15, name: "Raymond Lopez", ward: "Ward 15", party: "Democrat", role: "Alderman", contact: "(773) 823-1539", email: "ward15@cityofchicago.org" },
+            { id: 16, name: "Stephanie Coleman", ward: "Ward 16", party: "Democrat", role: "Alderman", contact: "(773) 823-1539", email: "ward16@cityofchicago.org" },
+            { id: 17, name: "David Moore", ward: "Ward 17", party: "Democrat", role: "Alderman", contact: "(773) 783-3672", email: "ward17@cityofchicago.org" },
+            { id: 18, name: "Derrick Curtis", ward: "Ward 18", party: "Democrat", role: "Alderman", contact: "(773) 488-6969", email: "ward18@cityofchicago.org" },
+            { id: 19, name: "Matthew O'Shea", ward: "Ward 19", party: "Democrat", role: "Alderman", contact: "(773) 238-8766", email: "ward19@cityofchicago.org" },
+            { id: 20, name: "Jeanette Taylor", ward: "Ward 20", party: "Democrat", role: "Alderman", contact: "(773) 955-5610", email: "ward20@cityofchicago.org" },
+            { id: 21, name: "Howard Brookins", ward: "Ward 21", party: "Democrat", role: "Alderman", contact: "(773) 881-9300", email: "ward21@cityofchicago.org" },
+            { id: 22, name: "Michael Rodriguez", ward: "Ward 22", party: "Democrat", role: "Alderman", contact: "(773) 928-6961", email: "ward22@cityofchicago.org" },
+            { id: 23, name: "Silvana Tabares", ward: "Ward 23", party: "Democrat", role: "Alderman", contact: "(773) 582-4444", email: "ward23@cityofchicago.org" },
+            { id: 24, name: "Michael Scott Jr.", ward: "Ward 24", party: "Democrat", role: "Alderman", contact: "(773) 533-0900", email: "ward24@cityofchicago.org" },
+            { id: 25, name: "Byron Sigcho-Lopez", ward: "Ward 25", party: "Democrat", role: "Alderman", contact: "(773) 523-4100", email: "ward25@cityofchicago.org" },
+            { id: 26, name: "Roberto Maldonado", ward: "Ward 26", party: "Democrat", role: "Alderman", contact: "(773) 395-0143", email: "ward26@cityofchicago.org" },
+            { id: 27, name: "Walter Burnett Jr.", ward: "Ward 27", party: "Democrat", role: "Alderman", contact: "(312) 432-1995", email: "ward27@cityofchicago.org" },
+            { id: 28, name: "Jason Ervin", ward: "Ward 28", party: "Democrat", role: "Alderman", contact: "(773) 533-0900", email: "ward28@cityofchicago.org" },
+            { id: 29, name: "Chris Taliaferro", ward: "Ward 29", party: "Democrat", role: "Alderman", contact: "(773) 237-6450", email: "ward29@cityofchicago.org" },
+            { id: 30, name: "Ariel Reboyras", ward: "Ward 30", party: "Democrat", role: "Alderman", contact: "(773) 794-3095", email: "ward30@cityofchicago.org" },
+            { id: 31, name: "Felix Cardona Jr.", ward: "Ward 31", party: "Democrat", role: "Alderman", contact: "(773) 278-4747", email: "ward31@cityofchicago.org" },
+            { id: 32, name: "Scott Waguespack", ward: "Ward 32", party: "Democrat", role: "Alderman", contact: "(773) 248-1330", email: "ward32@cityofchicago.org" },
+            { id: 33, name: "Rossana Rodriguez", ward: "Ward 33", party: "Democrat", role: "Alderman", contact: "(773) 478-0801", email: "ward33@cityofchicago.org" },
+            { id: 34, name: "Carrie Austin", ward: "Ward 34", party: "Democrat", role: "Alderman", contact: "(773) 785-1100", email: "ward34@cityofchicago.org" },
+            { id: 35, name: "Carlos Ramirez-Rosa", ward: "Ward 35", party: "Democrat", role: "Alderman", contact: "(773) 687-0690", email: "ward35@cityofchicago.org" },
+            { id: 36, name: "Gilbert Villegas", ward: "Ward 36", party: "Democrat", role: "Alderman", contact: "(773) 745-4636", email: "ward36@cityofchicago.org" },
+            { id: 37, name: "Emma Mitts", ward: "Ward 37", party: "Democrat", role: "Alderman", contact: "(773) 794-9802", email: "ward37@cityofchicago.org" },
+            { id: 38, name: "Nicholas Sposato", ward: "Ward 38", party: "Democrat", role: "Alderman", contact: "(773) 794-3095", email: "ward38@cityofchicago.org" },
+            { id: 39, name: "Samantha Nugent", ward: "Ward 39", party: "Democrat", role: "Alderman", contact: "(773) 736-5594", email: "ward39@cityofchicago.org" },
+            { id: 40, name: "Andre Vasquez", ward: "Ward 40", party: "Democrat", role: "Alderman", contact: "(773) 769-1140", email: "ward40@cityofchicago.org" },
+            { id: 41, name: "Anthony Napolitano", ward: "Ward 41", party: "Republican", role: "Alderman", contact: "(773) 763-7771", email: "ward41@cityofchicago.org" },
+            { id: 42, name: "Brendan Reilly", ward: "Ward 42", party: "Democrat", role: "Alderman", contact: "(312) 642-4242", email: "ward42@cityofchicago.org" },
+            { id: 43, name: "Michele Smith", ward: "Ward 43", party: "Democrat", role: "Alderman", contact: "(773) 348-9500", email: "ward43@cityofchicago.org" },
+            { id: 44, name: "Tom Tunney", ward: "Ward 44", party: "Democrat", role: "Alderman", contact: "(773) 525-6034", email: "ward44@cityofchicago.org" },
+            { id: 45, name: "James Gardiner", ward: "Ward 45", party: "Democrat", role: "Alderman", contact: "(773) 286-4545", email: "ward45@cityofchicago.org" },
+            { id: 46, name: "James Cappleman", ward: "Ward 46", party: "Democrat", role: "Alderman", contact: "(773) 868-4747", email: "ward46@cityofchicago.org" },
+            { id: 47, name: "Matt Martin", ward: "Ward 47", party: "Democrat", role: "Alderman", contact: "(773) 868-4747", email: "ward47@cityofchicago.org" },
+            { id: 48, name: "Harry Osterman", ward: "Ward 48", party: "Democrat", role: "Alderman", contact: "(773) 784-5277", email: "ward48@cityofchicago.org" },
+            { id: 49, name: "Maria Hadden", ward: "Ward 49", party: "Democrat", role: "Alderman", contact: "(773) 338-5796", email: "ward49@cityofchicago.org" },
+            { id: 50, name: "Debra Silverstein", ward: "Ward 50", party: "Democrat", role: "Alderman", contact: "(773) 262-1050", email: "ward50@cityofchicago.org" },
+            { id: 51, name: "Anna Valencia", ward: "City Clerk", party: "Democrat", role: "City Clerk", contact: "(312) 744-6861", email: "cityclerk@cityofchicago.org" },
+        ];
+
+        function App() {
+            const [selectedOfficial, setSelectedOfficial] = useState(null);
+            const [filter, setFilter] = useState('all');
+            const [currentView, setCurrentView] = useState('chamber'); // 'chamber' or 'profile'
+
+            function generateSeatPositions() {
+                const seats = [];
+                let officialIndex = 1;
+                
+                const centerX = 450;
+                const centerY = 320;
+                
+                // Based on the image: 3 sections with aisles between them
+                // Row 1: 4 left, 6 center, 4 right = 14 seats
+                // Row 2: 5 left, 7 center, 5 right = 17 seats
+                // Row 3: 6 left, 7 center, 6 right = 19 seats
+                
+                const rows = [
+                    { 
+                        radius: 240, 
+                        leftCount: 4, 
+                        centerCount: 6, 
+                        rightCount: 4,
+                        // Aisle gaps in degrees
+                        leftAisle: 15,
+                        rightAisle: 15
+                    },
+                    { 
+                        radius: 310, 
+                        leftCount: 5, 
+                        centerCount: 7, 
+                        rightCount: 5,
+                        leftAisle: 15,
+                        rightAisle: 15
+                    },
+                    { 
+                        radius: 380, 
+                        leftCount: 6, 
+                        centerCount: 7, 
+                        rightCount: 6,
+                        leftAisle: 15,
+                        rightAisle: 15
+                    },
+                ];
+                
+                rows.forEach((row) => {
+                    // Total available angle for seats (excluding aisles)
+                    const totalAngle = 180 - row.leftAisle - row.rightAisle;
+                    const totalSeats = row.leftCount + row.centerCount + row.rightCount;
+                    
+                    // Calculate proportional angles based on seat counts
+                    const leftAngle = (row.leftCount / totalSeats) * totalAngle;
+                    const centerAngle = (row.centerCount / totalSeats) * totalAngle;
+                    const rightAngle = (row.rightCount / totalSeats) * totalAngle;
+                    
+                    // LEFT SECTION (starts at 180°)
+                    const leftStartAngle = 180;
+                    const leftEndAngle = leftStartAngle - leftAngle;
+                    const leftAngleStep = (leftStartAngle - leftEndAngle) / (row.leftCount - 1);
+                    
+                    for (let i = 0; i < row.leftCount && officialIndex < officials.length; i++) {
+                        const angle = leftStartAngle - (leftAngleStep * i);
+                        const angleRad = (angle * Math.PI) / 180;
+                        const x = centerX + row.radius * Math.cos(angleRad);
+                        const y = centerY - row.radius * Math.sin(angleRad);
+                        
+                        seats.push({
+                            official: officials[officialIndex],
+                            x,
+                            y,
+                            rotation: -(angle - 90),
+                        });
+                        officialIndex++;
+                    }
+                    
+                    // CENTER SECTION (after left aisle gap)
+                    const centerStartAngle = leftEndAngle - row.leftAisle;
+                    const centerEndAngle = centerStartAngle - centerAngle;
+                    const centerAngleStep = (centerStartAngle - centerEndAngle) / (row.centerCount - 1);
+                    
+                    for (let i = 0; i < row.centerCount && officialIndex < officials.length; i++) {
+                        const angle = centerStartAngle - (centerAngleStep * i);
+                        const angleRad = (angle * Math.PI) / 180;
+                        const x = centerX + row.radius * Math.cos(angleRad);
+                        const y = centerY - row.radius * Math.sin(angleRad);
+                        
+                        seats.push({
+                            official: officials[officialIndex],
+                            x,
+                            y,
+                            rotation: -(angle - 90),
+                        });
+                        officialIndex++;
+                    }
+                    
+                    // RIGHT SECTION (after right aisle gap)
+                    const rightStartAngle = centerEndAngle - row.rightAisle;
+                    const rightEndAngle = 0;
+                    const rightAngleStep = (rightStartAngle - rightEndAngle) / (row.rightCount - 1);
+                    
+                    for (let i = 0; i < row.rightCount && officialIndex < officials.length; i++) {
+                        const angle = rightStartAngle - (rightAngleStep * i);
+                        const angleRad = (angle * Math.PI) / 180;
+                        const x = centerX + row.radius * Math.cos(angleRad);
+                        const y = centerY - row.radius * Math.sin(angleRad);
+                        
+                        seats.push({
+                            official: officials[officialIndex],
+                            x,
+                            y,
+                            rotation: -(angle - 90),
+                        });
+                        officialIndex++;
+                    }
+                });
+
+                return seats;
+            }
+
+            const seats = generateSeatPositions();
+            const filteredSeats = filter === 'all' 
+                ? seats 
+                : seats.filter(seat => seat.official.party.toLowerCase() === filter);
+
+            const mayor = officials[0];
+            const clerk = officials[51];
+
+            // Profile Page Component
+            if (currentView === 'profile' && selectedOfficial) {
+                return (
+                    <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
+                        {/* Navigation Bar */}
+                        <nav style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '16px 0', position: 'sticky', top: 0, zIndex: 100 }}>
+                            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <button 
+                                    onClick={() => setCurrentView('chamber')}
+                                    style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }}
+                                >
+                                    ← Back to Chamber
+                                </button>
+                                <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                                    {selectedOfficial.role} • {selectedOfficial.ward}
+                                </div>
+                            </div>
+                        </nav>
+
+                        {/* Profile Content */}
+                        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+                            {/* Header Section */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '40px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                                    <img 
+                                        src={`https://i.pravatar.cc/300?img=${selectedOfficial.id + 10}`}
+                                        alt={selectedOfficial.name}
+                                        style={{ width: '200px', height: '200px', borderRadius: '16px', objectFit: 'cover' }}
+                                    />
+                                    <div style={{ flex: 1, minWidth: '300px' }}>
+                                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '12px', color: '#1a1a1a' }}>
+                                            {selectedOfficial.name}
+                                        </h1>
+                                        <p style={{ fontSize: '1.25rem', color: '#6b7280', marginBottom: '24px', fontWeight: '600' }}>
+                                            {selectedOfficial.role} • {selectedOfficial.ward}
+                                        </p>
+                                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                                            <span className={`party-badge ${selectedOfficial.party.toLowerCase()}`}>
+                                                {selectedOfficial.party}
+                                            </span>
+                                            <span style={{ padding: '6px 16px', background: '#f3f4f6', borderRadius: '8px', fontSize: '14px', fontWeight: '600' }}>
+                                                Term: 2023-2027
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '14px', color: '#6b7280', fontWeight: '600' }}>📞</span>
+                                                <a href={`tel:${selectedOfficial.contact}`} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '600' }}>
+                                                    {selectedOfficial.contact}
+                                                </a>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '14px', color: '#6b7280', fontWeight: '600' }}>✉️</span>
+                                                <a href={`mailto:${selectedOfficial.email}`} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '600' }}>
+                                                    {selectedOfficial.email}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Impact Score Card */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px', color: '#1a1a1a' }}>
+                                    Legislative Impact Score
+                                </h2>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+                                    <div style={{ textAlign: 'center', padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '2rem', fontWeight: '900', color: '#2563eb', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 50 + 50)}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                            Bills Introduced
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                                            vs. passed ratio
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center', padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '2rem', fontWeight: '900', color: '#10b981', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 30 + 20)}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                            Bills Passed
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                                            this term
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center', padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '2rem', fontWeight: '900', color: '#f59e0b', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 20 + 70)}%
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                            Success Rate
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                                            above avg
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center', padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '2rem', fontWeight: '900', color: '#8b5cf6', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 10 + 5)}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                            Committee Seats
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                                            active roles
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Voting Pattern & Alliance Tracker */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px', color: '#1a1a1a' }}>
+                                    Voting Pattern & Alliance Tracker
+                                </h2>
+                                <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '14px' }}>
+                                    Who {selectedOfficial.name} votes with most often and coalition strength indicators
+                                </p>
+                                
+                                {/* Top Voting Allies */}
+                                <div style={{ marginBottom: '32px' }}>
+                                    <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: '#1a1a1a' }}>
+                                        Top Voting Allies
+                                    </h3>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {[
+                                            { name: 'Scott Waguespack', ward: 'Ward 32', alignment: 95, bloc: 'Progressive Caucus' },
+                                            { name: 'Rossana Rodriguez', ward: 'Ward 33', alignment: 92, bloc: 'Progressive Caucus' },
+                                            { name: 'Carlos Ramirez-Rosa', ward: 'Ward 35', alignment: 89, bloc: 'Progressive Caucus' },
+                                            { name: 'Andre Vasquez', ward: 'Ward 40', alignment: 87, bloc: 'Progressive Caucus' },
+                                        ].map((ally, idx) => (
+                                            <div key={idx} style={{ padding: '16px', background: '#f9fafb', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                                                <div>
+                                                    <div style={{ fontWeight: '700', color: '#1a1a1a', marginBottom: '4px' }}>{ally.name}</div>
+                                                    <div style={{ fontSize: '12px', color: '#6b7280' }}>{ally.ward} • {ally.bloc}</div>
+                                                </div>
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#10b981' }}>{ally.alignment}%</div>
+                                                    <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>Alignment</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Coalition Strength */}
+                                <div>
+                                    <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: '#1a1a1a' }}>
+                                        Coalition Strength
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                                        <div style={{ padding: '16px', background: '#dbeafe', borderRadius: '12px', border: '2px solid #3b82f6' }}>
+                                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e40af', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                                Primary Bloc
+                                            </div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#1e40af', marginBottom: '4px' }}>
+                                                Progressive Caucus
+                                            </div>
+                                            <div style={{ fontSize: '13px', color: '#1e40af' }}>
+                                                12 members • Strong influence on housing & transit policy
+                                            </div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '12px' }}>
+                                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                                Swing Vote Power
+                                            </div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#f59e0b', marginBottom: '4px' }}>
+                                                High
+                                            </div>
+                                            <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                                                Pivotal in 8 divided votes this year
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Voting Record */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '16px', color: '#1a1a1a' }}>
+                                    Recent Voting Record
+                                </h2>
+                                <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+                                    Track how {selectedOfficial.name} votes on key issues affecting Chicago
+                                </p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {['Infrastructure Investment Bill', 'Affordable Housing Initiative', 'Public Safety Reform', 'Education Funding Increase'].map((bill, idx) => (
+                                        <div key={idx} style={{ padding: '16px', background: '#f9fafb', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: '600', color: '#1a1a1a' }}>{bill}</span>
+                                            <span style={{ padding: '4px 12px', background: idx % 3 === 0 ? '#dcfce7' : idx % 3 === 1 ? '#fee2e2' : '#fef3c7', color: idx % 3 === 0 ? '#166534' : idx % 3 === 1 ? '#991b1b' : '#854d0e', borderRadius: '6px', fontSize: '14px', fontWeight: '700' }}>
+                                                {idx % 3 === 0 ? 'Yes' : idx % 3 === 1 ? 'No' : 'Abstain'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Ward Comparison Dashboard */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px', color: '#1a1a1a' }}>
+                                    Ward-to-Ward Comparison
+                                </h2>
+                                <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '14px' }}>
+                                    Compare {selectedOfficial.ward} performance against city averages and similar wards
+                                </p>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                                    {/* Infrastructure Spending */}
+                                    <div style={{ padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase' }}>
+                                            Infrastructure Spending
+                                        </div>
+                                        <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#2563eb', marginBottom: '8px' }}>
+                                            ${(Math.random() * 3 + 2).toFixed(1)}M
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                                            vs. ${(Math.random() * 3 + 2).toFixed(1)}M city avg
+                                        </div>
+                                        <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${Math.floor(Math.random() * 40 + 60)}%`, background: '#2563eb' }}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* 311 Response Time */}
+                                    <div style={{ padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase' }}>
+                                            311 Response Time
+                                        </div>
+                                        <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#10b981', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 5 + 3)} days
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                                            vs. {Math.floor(Math.random() * 5 + 4)} days city avg
+                                        </div>
+                                        <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${Math.floor(Math.random() * 40 + 50)}%`, background: '#10b981' }}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Affordable Housing */}
+                                    <div style={{ padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase' }}>
+                                            Affordable Housing
+                                        </div>
+                                        <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#f59e0b', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 500 + 200)} units
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                                            vs. {Math.floor(Math.random() * 400 + 250)} city avg
+                                        </div>
+                                        <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${Math.floor(Math.random() * 30 + 60)}%`, background: '#f59e0b' }}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Permit Processing */}
+                                    <div style={{ padding: '20px', background: '#f9fafb', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase' }}>
+                                            Permit Processing
+                                        </div>
+                                        <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#8b5cf6', marginBottom: '8px' }}>
+                                            {Math.floor(Math.random() * 10 + 15)} days
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                                            vs. {Math.floor(Math.random() * 10 + 18)} days city avg
+                                        </div>
+                                        <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${Math.floor(Math.random() * 30 + 65)}%`, background: '#8b5cf6' }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Strategic Insight Box */}
+                                <div style={{ marginTop: '24px', padding: '16px', background: '#fef3c7', borderRadius: '12px', border: '1px solid #fbbf24' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#92400e', marginBottom: '4px' }}>
+                                        💡 Strategic Insight
+                                    </div>
+                                    <div style={{ fontSize: '14px', color: '#92400e' }}>
+                                        Ward 32 received 42% more infrastructure funding. Consider lobbying for similar investment in community development projects.
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Committee Memberships */}
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '16px', color: '#1a1a1a' }}>
+                                    Committee Memberships
+                                </h2>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                                    {['Budget & Government Operations', 'Public Safety', 'Housing & Real Estate', 'Transportation & Public Way', 'Economic Development'].slice(0, Math.floor(Math.random() * 3 + 3)).map((committee, idx) => (
+                                        <span key={idx} style={{ padding: '8px 16px', background: '#dbeafe', color: '#1e40af', borderRadius: '8px', fontSize: '14px', fontWeight: '600' }}>
+                                            {committee}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Chamber View (default)
+            return (
+                <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
+                    {/* Hero Section */}
+                    <section style={{ position: 'relative', width: '100%', height: 0, paddingBottom: '56.25%', background: '#E8E5DF' }}>
+                        <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                            
+                            {/* City Hall Building - Base layer */}
+                            <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 10, top: '-25%', transform: 'translateY(25%)' }}>
+                                <img
+                                    src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2976ede320a2c6e6e27_city%20hall%20building.png"
+                                    alt="City Hall Building"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                                />
+                            </div>
+
+                            {/* HALL Text - Below everything */}
+                            <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }}>
+                                <img
+                                    src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2975695c32b41340967_text%2C%20hall.png"
+                                    alt="Hall"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                                />
+                            </div>
+
+                            {/* CITY Text - In front of building */}
+                            <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 20 }}>
+                                <img
+                                    src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b297e001e99022c35bc8_text%2C%20City.png"
+                                    alt="City"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                                />
+                            </div>
+
+                            {/* Chicago Text with Stars */}
+                            <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
+                                <img
+                                    src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2977fd3a46a6280b698_Chicago%20w%20stars.png"
+                                    alt="Chicago with stars"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                                />
+                            </div>
+
+                            {/* Chicago Ribbon */}
+                            <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 30 }}>
+                                <img
+                                    src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2972e758df565d5f921_Chicago%20ribbon.png"
+                                    alt="Chicago ribbon"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Quick Stats */}
+                    <section style={{ background: 'white', borderBottom: '4px solid #C8102E', padding: '32px 0' }}>
+                        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: '900', marginBottom: '8px' }}>
+                                        51
+                                    </div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '700', textTransform: 'uppercase' }}>
+                                        Elected Officials
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: '900', marginBottom: '8px' }}>
+                                        50
+                                    </div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '700', textTransform: 'uppercase' }}>
+                                        City Wards
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: '900', marginBottom: '8px' }}>
+                                        2.7M
+                                    </div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '700', textTransform: 'uppercase' }}>
+                                        Residents Served
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: '900', marginBottom: '8px' }}>
+                                        100%
+                                    </div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '700', textTransform: 'uppercase' }}>
+                                        Transparency
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div className="container">
+                    <div className="header">
+                        <h1>The City Council of the City of <span className="city-name">Chicago</span></h1>
+                        <p>50 Aldermen representing Chicago's diverse communities</p>
+                    </div>
+
+                    <div className="filters">
+                        <button 
+                            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+                            onClick={() => setFilter('all')}
+                        >
+                            All Members
+                        </button>
+                        <button 
+                            className={`filter-btn ${filter === 'democrat' ? 'active' : ''}`}
+                            onClick={() => setFilter('democrat')}
+                        >
+                            Democrats
+                        </button>
+                        <button 
+                            className={`filter-btn ${filter === 'republican' ? 'active' : ''}`}
+                            onClick={() => setFilter('republican')}
+                        >
+                            Republicans
+                        </button>
+                    </div>
+
+                    <div className="chamber-container">
+                        <div className="svg-container">
+                            <svg viewBox="0 -150 900 600" xmlns="http://www.w3.org/2000/svg">
+                                {filteredSeats.map((seat, idx) => {
+                                    const cardWidth = 48;
+                                    const cardHeight = 64;
+                                    
+                                    return (
+                                        <g
+                                            key={idx}
+                                            className="seat-card"
+                                            transform={`translate(${seat.x}, ${seat.y}) rotate(${seat.rotation})`}
+                                            onClick={() => { setSelectedOfficial(seat.official); setCurrentView('profile'); }}
+                                        >
+                                            <rect
+                                                className="card-bg"
+                                                x={-cardWidth/2}
+                                                y={-cardHeight/2}
+                                                width={cardWidth}
+                                                height={cardHeight}
+                                                rx="3"
+                                            />
+                                            
+                                            <image
+                                                className="card-photo"
+                                                href={`https://i.pravatar.cc/150?img=${seat.official.id + 10}`}
+                                                x={-cardWidth/2 + 3}
+                                                y={-cardHeight/2 + 3}
+                                                width={cardWidth - 6}
+                                                height={cardWidth - 6}
+                                            />
+                                            
+                                            <text
+                                                className="card-ward"
+                                                x="0"
+                                                y={cardHeight/2 - 3}
+                                                textAnchor="middle"
+                                            >
+                                                {seat.official.ward}
+                                            </text>
+                                        </g>
+                                    );
+                                })}
+
+                                <g
+                                    className="mayor-card"
+                                    transform="translate(450, 380)"
+                                    onClick={() => { setSelectedOfficial(mayor); setCurrentView('profile'); }}
+                                >
+                                    <rect className="card-bg" x="-35" y="-45" width="70" height="90" rx="5" />
+                                    <image
+                                        className="card-photo"
+                                        href={`https://i.pravatar.cc/150?img=33`}
+                                        x="-32"
+                                        y="-42"
+                                        width="64"
+                                        height="64"
+                                    />
+                                    <text className="card-name" x="0" y="35" textAnchor="middle" style={{fontSize: '9px', fontWeight: 900}}>Mayor</text>
+                                    <text className="card-ward" x="0" y="43" textAnchor="middle" style={{fontSize: '8px'}}>{mayor.name}</text>
+                                </g>
+
+                                <g
+                                    className="clerk-card"
+                                    transform="translate(450, 270)"
+                                    onClick={() => { setSelectedOfficial(clerk); setCurrentView('profile'); }}
+                                >
+                                    <rect className="card-bg" x="-25" y="-30" width="50" height="65" rx="4" />
+                                    <image
+                                        className="card-photo"
+                                        href={`https://i.pravatar.cc/150?img=45`}
+                                        x="-22"
+                                        y="-27"
+                                        width="44"
+                                        height="44"
+                                    />
+                                    <text className="card-name" x="0" y="28" textAnchor="middle" style={{fontSize: '7px'}}>City Clerk</text>
+                                    <text className="card-ward" x="0" y="34" textAnchor="middle" style={{fontSize: '6px'}}>{clerk.name}</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
