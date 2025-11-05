@@ -25,7 +25,3 @@ backend/server.log
 backend/nohup.out
 backend/backend
 backend/tmp/
-
-# Unused directories
-src/
-docs/
