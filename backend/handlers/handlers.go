@@ -472,7 +472,7 @@ func GetRecentVotes(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Client.From("votes").
 		Select("*, matters(matter_name, matter_type)", "exact", false).
 		Eq("person_id", officialID).
-		Order("created_at", &map[string]string{"ascending": "false"}).
+		Order("created_at", nil).
 		Limit(10, "").
 		ExecuteTo(&votes)
 	
