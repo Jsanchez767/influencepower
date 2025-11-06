@@ -120,7 +120,7 @@ function App() {
           seats.push({
             x: centerX + row.radius * Math.cos(rad),
             y: centerY + row.radius * Math.sin(rad),
-            rotation: angle - 90,
+            rotation: angle + 90,
             official: aldermen[officialIndex - 1]
           });
         }
@@ -137,7 +137,7 @@ function App() {
           seats.push({
             x: centerX + row.radius * Math.cos(rad),
             y: centerY + row.radius * Math.sin(rad),
-            rotation: angle - 90,
+            rotation: angle + 90,
             official: aldermen[officialIndex - 1]
           });
         }
@@ -154,7 +154,7 @@ function App() {
           seats.push({
             x: centerX + row.radius * Math.cos(rad),
             y: centerY + row.radius * Math.sin(rad),
-            rotation: angle - 90,
+            rotation: angle + 90,
             official: aldermen[officialIndex - 1]
           });
         }
