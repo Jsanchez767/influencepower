@@ -51,6 +51,7 @@ func main() {
 
 	// Fetch CSV data from ELMS API
 	log.Println("📋 Fetching current officials from ELMS API...")
+	log.Println("💡 Note: CSV is ordered oldest first, so we'll process in reverse to get current officials")
 	url := "https://api.chicityclerkelms.chicago.gov/export/person"
 	
 	resp, err := http.Get(url)
@@ -76,15 +77,21 @@ func main() {
 		log.Fatal("No data in CSV")
 	}
 
-	// First row is header
-	// Name,Office,Office Phone,Fax,Email,Website,Office Address,City,State,Zip,City Hall Phone,City Hall Address,City,State,Zip
+	// First row is header, reverse the data rows to process newest first
+	dataRows := records[1:]
+	for i, j := 0, len(dataRows)-1; i < j; i, j = i+1, j-1 {
+		dataRows[i], dataRows[j] = dataRows[j], dataRows[i]
+	}
 	
 	synced := 0
 	created := 0
 	updated := 0
 	skipped := 0
+	
+	// Track which wards we've already processed (only take first/most recent per ward)
+	processedWards := make(map[int]bool)
 
-	for i, record := range records[1:] { // Skip header
+	for i, record := range dataRows { // Now in reverse order (newest first)
 		if len(record) < 5 {
 			log.Printf("⚠️  Row %d: Insufficient columns, skipping", i+2)
 			skipped++
@@ -121,6 +128,13 @@ func main() {
 
 		if ward < 1 || ward > 50 {
 			log.Printf("⚠️  Ward %d out of range for %s, skipping", ward, fullName)
+			skipped++
+			continue
+		}
+
+		// Skip if we've already processed this ward (CSV has duplicates/historical entries)
+		if processedWards[ward] {
+			log.Printf("⚠️  Ward %d already processed (skipping historical entry: %s)", ward, fullName)
 			skipped++
 			continue
 		}
@@ -243,6 +257,9 @@ func main() {
 
 		log.Printf("  ✅ Created current term")
 		synced++
+		
+		// Mark this ward as processed
+		processedWards[ward] = true
 	}
 
 	log.Println("\n🎉 Sync complete!")
