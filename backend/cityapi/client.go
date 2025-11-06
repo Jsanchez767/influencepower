@@ -233,6 +233,46 @@ func (c *Client) GetOfficeRecords() ([]OfficeRecord, error) {
 	return records, err
 }
 
+// ExportPerson represents a person from the export endpoint with additional fields
+type ExportPerson struct {
+	PersonID        int    `json:"PersonId"`
+	PersonGUID      string `json:"PersonGuid"`
+	PersonFirstName string `json:"PersonFirstName"`
+	PersonLastName  string `json:"PersonLastName"`
+	PersonFullName  string `json:"PersonFullName"`
+	PersonEmail     string `json:"PersonEmail"`
+	PersonPhone     string `json:"PersonPhone"`
+	PersonWWW       string `json:"PersonWWW"`
+	PersonType      string `json:"PersonType"`      // "Full City Council", "Committee Member", etc.
+	DisplayName     string `json:"displayName"`     // For sorting
+	Ward            int    `json:"ward,omitempty"`  // Ward number if applicable
+}
+
+// GetExportPersons fetches persons from the export endpoint with optional filters
+// Supports filter and search parameters:
+// - filter: "ward eq '14'" or "PersonType eq 'Full City Council'"
+// - search: "Gutierrez" (searches in name fields)
+func (c *Client) GetExportPersons(filter string, search string) ([]ExportPerson, error) {
+	endpoint := fmt.Sprintf("%s/export/person", c.BaseURL)
+	
+	// Build query parameters
+	queryParams := url.Values{}
+	if filter != "" {
+		queryParams.Add("filter", filter)
+	}
+	if search != "" {
+		queryParams.Add("search", search)
+	}
+	
+	if len(queryParams) > 0 {
+		endpoint = fmt.Sprintf("%s?%s", endpoint, queryParams.Encode())
+	}
+	
+	var persons []ExportPerson
+	err := c.doRequest(endpoint, &persons)
+	return persons, err
+}
+
 // doRequest performs the HTTP request and unmarshals the response
 func (c *Client) doRequest(endpoint string, result interface{}) error {
 	req, err := http.NewRequest("GET", endpoint, nil)
