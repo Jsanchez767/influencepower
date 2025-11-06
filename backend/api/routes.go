@@ -35,6 +35,12 @@ func SetupRoutes(router *mux.Router) {
 	// Committees routes
 	api.HandleFunc("/committees", handlers.GetCommittees).Methods("GET")
 	api.HandleFunc("/officials/{id}/committees", handlers.GetOfficialCommittees).Methods("GET")
+
+	// Metrics routes
+	api.HandleFunc("/officials/{id}/metrics", handlers.GetOfficialMetrics).Methods("GET")
+	api.HandleFunc("/wards/{ward}/metrics", handlers.GetWardMetrics).Methods("GET")
+	api.HandleFunc("/officials/{id}/voting-allies", handlers.GetVotingAllies).Methods("GET")
+	api.HandleFunc("/officials/{id}/recent-votes", handlers.GetRecentVotes).Methods("GET")
 }
 
 // HealthCheck returns the health status of the API

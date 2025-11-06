@@ -291,3 +291,196 @@ func GetOfficialCommittees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(committees)
 }
+
+// GetOfficialMetrics returns performance metrics for a specific official
+func GetOfficialMetrics(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	officialID := vars["id"]
+
+	var metrics []map[string]interface{}
+	
+	_, err := db.Client.From("official_metrics").
+		Select("*", "exact", false).
+		Eq("official_id", officialID).
+		ExecuteTo(&metrics)
+	
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(metrics) == 0 {
+		http.Error(w, "Metrics not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(metrics[0])
+}
+
+// GetWardMetrics returns metrics for a specific ward
+func GetWardMetrics(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ward := vars["ward"]
+
+	var metrics []map[string]interface{}
+	
+	_, err := db.Client.From("ward_metrics").
+		Select("*", "exact", false).
+		Eq("ward", ward).
+		ExecuteTo(&metrics)
+	
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(metrics) == 0 {
+		http.Error(w, "Ward metrics not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(metrics[0])
+}
+
+// GetVotingAllies returns voting alignment data for an official
+func GetVotingAllies(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	officialID := vars["id"]
+
+	// Query votes from the official
+	var officialVotes []map[string]interface{}
+	_, err := db.Client.From("votes").
+		Select("matter_id, vote_result", "exact", false).
+		Eq("person_id", officialID).
+		ExecuteTo(&officialVotes)
+	
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create a map of matter_id -> vote_result for this official
+	officialVoteMap := make(map[string]string)
+	for _, vote := range officialVotes {
+		if matterID, ok := vote["matter_id"].(string); ok {
+			if voteResult, ok := vote["vote_result"].(string); ok {
+				officialVoteMap[matterID] = voteResult
+			}
+		}
+	}
+
+	// Get all other officials
+	var officials []models.Official
+	_, err = db.Client.From("officials").
+		Select("id, name, ward, party", "exact", false).
+		ExecuteTo(&officials)
+	
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Calculate alignment with each official
+	type AllyData struct {
+		OfficialID int     `json:"official_id"`
+		Name       string  `json:"name"`
+		Ward       *int    `json:"ward"`
+		Party      string  `json:"party"`
+		Alignment  float64 `json:"alignment"`
+		Bloc       string  `json:"bloc"`
+	}
+
+	var allies []AllyData
+
+	for _, other := range officials {
+		if strconv.Itoa(other.ID) == officialID {
+			continue
+		}
+
+		// Get votes for this official
+		var otherVotes []map[string]interface{}
+		_, err := db.Client.From("votes").
+			Select("matter_id, vote_result", "exact", false).
+			Eq("person_id", strconv.Itoa(other.ID)).
+			ExecuteTo(&otherVotes)
+		
+		if err != nil {
+			continue
+		}
+
+		// Calculate alignment
+		matches := 0
+		total := 0
+		for _, vote := range otherVotes {
+			if matterID, ok := vote["matter_id"].(string); ok {
+				if officialVote, exists := officialVoteMap[matterID]; exists {
+					if otherVote, ok := vote["vote_result"].(string); ok {
+						total++
+						if officialVote == otherVote {
+							matches++
+						}
+					}
+				}
+			}
+		}
+
+		if total > 0 {
+			alignment := (float64(matches) / float64(total)) * 100
+			bloc := "Independent"
+			if other.Party == "Democratic" {
+				bloc = "Progressive Caucus"
+			}
+
+			allies = append(allies, AllyData{
+				OfficialID: other.ID,
+				Name:       other.Name,
+				Ward:       other.Ward,
+				Party:      other.Party,
+				Alignment:  alignment,
+				Bloc:       bloc,
+			})
+		}
+	}
+
+	// Sort by alignment (descending) and take top 10
+	// Simple bubble sort for now
+	for i := 0; i < len(allies); i++ {
+		for j := i + 1; j < len(allies); j++ {
+			if allies[j].Alignment > allies[i].Alignment {
+				allies[i], allies[j] = allies[j], allies[i]
+			}
+		}
+	}
+
+	if len(allies) > 10 {
+		allies = allies[:10]
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(allies)
+}
+
+// GetRecentVotes returns recent votes for an official
+func GetRecentVotes(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	officialID := vars["id"]
+
+	var votes []map[string]interface{}
+	
+	_, err := db.Client.From("votes").
+		Select("*, matters(matter_name, matter_type)", "exact", false).
+		Eq("person_id", officialID).
+		Order("created_at", &map[string]string{"ascending": "false"}).
+		Limit(10, "").
+		ExecuteTo(&votes)
+	
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(votes)
+}

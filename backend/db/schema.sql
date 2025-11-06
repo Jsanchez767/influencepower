@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS officials (
     contact VARCHAR(255),
     email VARCHAR(255),
     image_url TEXT,
+    city_api_person_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
