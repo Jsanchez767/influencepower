@@ -2,7 +2,7 @@ services:
   - type: web
     name: influencepower-backend
     env: docker
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: ./backend
     region: oregon
     plan: free
