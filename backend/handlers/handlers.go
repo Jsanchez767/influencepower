@@ -14,8 +14,8 @@ import (
 func GetOfficials(w http.ResponseWriter, r *http.Request) {
 	var officials []models.Official
 	
-	// Query all officials from Supabase
-	_, err := db.Client.From("officials").
+	// Query all current officials from the new current_officials view
+	_, err := db.Client.From("current_officials").
 		Select("*", "exact", false).
 		ExecuteTo(&officials)
 	
@@ -28,16 +28,17 @@ func GetOfficials(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(officials)
 }
 
-// GetOfficialByID returns a single official by ID
+// GetOfficialByID returns a single official by ID (person_id in new schema)
 func GetOfficialByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	var officials []models.Official
 	
-	_, err := db.Client.From("officials").
+	// Query from current_officials view using person_id
+	_, err := db.Client.From("current_officials").
 		Select("*", "exact", false).
-		Eq("id", id).
+		Eq("person_id", id).
 		ExecuteTo(&officials)
 	
 	if err != nil {
@@ -54,7 +55,7 @@ func GetOfficialByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(officials[0])
 }
 
-// CreateOfficial creates a new official
+// CreateOfficial creates a new official (creates person and term)
 func CreateOfficial(w http.ResponseWriter, r *http.Request) {
 	var official models.Official
 	
@@ -63,8 +64,9 @@ func CreateOfficial(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Insert into people table
 	var result []models.Official
-	_, err := db.Client.From("officials").
+	_, err := db.Client.From("people").
 		Insert(official, false, "", "", "").
 		ExecuteTo(&result)
 	
@@ -82,7 +84,7 @@ func CreateOfficial(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// UpdateOfficial updates an existing official
+// UpdateOfficial updates an existing official (updates person record)
 func UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -93,8 +95,9 @@ func UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Update people table
 	var result []models.Official
-	_, err := db.Client.From("officials").
+	_, err := db.Client.From("people").
 		Update(official, "", "").
 		Eq("id", id).
 		ExecuteTo(&result)
@@ -112,13 +115,14 @@ func UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// DeleteOfficial deletes an official
+// DeleteOfficial deletes an official (deletes person record)
 func DeleteOfficial(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
+	// Delete from people table (cascade will handle terms)
 	var result []models.Official
-	_, err := db.Client.From("officials").
+	_, err := db.Client.From("people").
 		Delete("", "").
 		Eq("id", id).
 		ExecuteTo(&result)
@@ -138,9 +142,10 @@ func GetOfficialsByParty(w http.ResponseWriter, r *http.Request) {
 
 	var officials []models.Official
 	
-	_, err := db.Client.From("officials").
+	// Query from current_officials view using party_affiliation
+	_, err := db.Client.From("current_officials").
 		Select("*", "exact", false).
-		Eq("party", party).
+		Eq("party_affiliation", party).
 		ExecuteTo(&officials)
 	
 	if err != nil {
@@ -159,9 +164,10 @@ func GetOfficialsByWard(w http.ResponseWriter, r *http.Request) {
 
 	var officials []models.Official
 	
-	_, err := db.Client.From("officials").
+	// Query from current_officials view using district_number (was ward)
+	_, err := db.Client.From("current_officials").
 		Select("*", "exact", false).
-		Eq("ward", ward).
+		Eq("district_number", ward).
 		ExecuteTo(&officials)
 	
 	if err != nil {
@@ -180,9 +186,10 @@ func GetVotingRecords(w http.ResponseWriter, r *http.Request) {
 
 	var records []models.VotingRecord
 	
-	_, err := db.Client.From("voting_records").
+	// Query from votes table using person_id
+	_, err := db.Client.From("votes").
 		Select("*", "exact", false).
-		Eq("official_id", officialID).
+		Eq("person_id", officialID).
 		Order("vote_date", nil).
 		ExecuteTo(&records)
 	
@@ -204,8 +211,9 @@ func CreateVotingRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Insert into votes table
 	var result []models.VotingRecord
-	_, err := db.Client.From("voting_records").
+	_, err := db.Client.From("votes").
 		Insert(record, false, "", "", "").
 		ExecuteTo(&result)
 	
@@ -235,9 +243,10 @@ func GetWardStatistics(w http.ResponseWriter, r *http.Request) {
 
 	var stats []models.WardStatistic
 	
-	_, err = db.Client.From("ward_statistics").
+	// Query from current_officials view with district_number
+	_, err = db.Client.From("current_officials").
 		Select("*", "exact", false).
-		Eq("ward", strconv.Itoa(ward)).
+		Eq("district_number", strconv.Itoa(ward)).
 		ExecuteTo(&stats)
 	
 	if err != nil {
@@ -299,9 +308,10 @@ func GetOfficialMetrics(w http.ResponseWriter, r *http.Request) {
 
 	var metrics []map[string]interface{}
 	
-	_, err := db.Client.From("official_metrics").
+	// Query from person_metrics table using person_id
+	_, err := db.Client.From("person_metrics").
 		Select("*", "exact", false).
-		Eq("official_id", officialID).
+		Eq("person_id", officialID).
 		ExecuteTo(&metrics)
 	
 	if err != nil {
@@ -325,9 +335,10 @@ func GetWardMetrics(w http.ResponseWriter, r *http.Request) {
 
 	var metrics []map[string]interface{}
 	
-	_, err := db.Client.From("ward_metrics").
-		Select("*", "exact", false).
-		Eq("ward", ward).
+	// Query person_metrics by joining through current_officials view
+	_, err := db.Client.From("current_officials").
+		Select("*, person_metrics(*)", "exact", false).
+		Eq("district_number", ward).
 		ExecuteTo(&metrics)
 	
 	if err != nil {
@@ -371,10 +382,10 @@ func GetVotingAllies(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Get all other officials
+	// Get all other officials from current_officials view
 	var officials []models.Official
-	_, err = db.Client.From("officials").
-		Select("id, name, ward, party", "exact", false).
+	_, err = db.Client.From("current_officials").
+		Select("person_id, full_name, district_number, party_affiliation", "exact", false).
 		ExecuteTo(&officials)
 	
 	if err != nil {
