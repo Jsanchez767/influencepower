@@ -120,7 +120,26 @@ type Person struct {
 	PersonLastName  string `json:"PersonLastName"`
 	PersonFullName  string `json:"PersonFullName"`
 	PersonEmail     string `json:"PersonEmail"`
+	PersonPhone     string `json:"PersonPhone"`
 	PersonWWW       string `json:"PersonWWW"`
+}
+
+// OfficeRecord represents a person holding an office/position
+type OfficeRecord struct {
+	OfficeRecordID         int    `json:"OfficeRecordId"`
+	OfficeRecordGUID       string `json:"OfficeRecordGuid"`
+	OfficeRecordPersonID   int    `json:"OfficeRecordPersonId"`
+	OfficeRecordFirstName  string `json:"OfficeRecordFirstName"`
+	OfficeRecordLastName   string `json:"OfficeRecordLastName"`
+	OfficeRecordFullName   string `json:"OfficeRecordFullName"`
+	OfficeRecordTitle      string `json:"OfficeRecordTitle"`
+	OfficeRecordBodyID     int    `json:"OfficeRecordBodyId"`
+	OfficeRecordBodyName   string `json:"OfficeRecordBodyName"`
+	OfficeRecordEmail      string `json:"OfficeRecordEmail"`
+	OfficeRecordStartDate  string `json:"OfficeRecordStartDate"`
+	OfficeRecordEndDate    string `json:"OfficeRecordEndDate"`
+	OfficeRecordMemberType string `json:"OfficeRecordMemberType"`
+	OfficeRecordExtraText  string `json:"OfficeRecordExtraText"`
 }
 
 // GetMatters fetches legislation/matters from the API
@@ -203,6 +222,15 @@ func (c *Client) GetPersons() ([]Person, error) {
 	var persons []Person
 	err := c.doRequest(endpoint, &persons)
 	return persons, err
+}
+
+// GetOfficeRecords fetches all office records (who holds which position)
+func (c *Client) GetOfficeRecords() ([]OfficeRecord, error) {
+	endpoint := fmt.Sprintf("%s/officerecords", c.BaseURL)
+	
+	var records []OfficeRecord
+	err := c.doRequest(endpoint, &records)
+	return records, err
 }
 
 // doRequest performs the HTTP request and unmarshals the response

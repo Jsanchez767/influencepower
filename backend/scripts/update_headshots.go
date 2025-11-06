@@ -58,9 +58,15 @@ func main() {
 		officialID := int(official["id"].(float64))
 		officialName := official["name"].(string)
 		
-		var cityAPIPersonID string
+		var cityAPIPersonID int
 		if official["city_api_person_id"] != nil {
-			cityAPIPersonID = official["city_api_person_id"].(string)
+			// Handle both string and numeric types
+			switch v := official["city_api_person_id"].(type) {
+			case string:
+				fmt.Sscanf(v, "%d", &cityAPIPersonID)
+			case float64:
+				cityAPIPersonID = int(v)
+			}
 		}
 
 		log.Printf("\n📸 Processing %s (ID: %d)...", officialName, officialID)
@@ -69,7 +75,7 @@ func main() {
 		var matchedPerson *cityapi.Person
 		
 		// First try by city_api_person_id if available
-		if cityAPIPersonID != "" {
+		if cityAPIPersonID != 0 {
 			for _, person := range persons {
 				if person.PersonID == cityAPIPersonID {
 					matchedPerson = &person
@@ -80,10 +86,29 @@ func main() {
 
 		// If not found, try by name matching
 		if matchedPerson == nil {
+			// Try exact match first
 			for _, person := range persons {
 				if strings.EqualFold(person.PersonFullName, officialName) {
 					matchedPerson = &person
 					break
+				}
+			}
+			
+			// If still not found, try matching with "LastName, FirstName" format
+			if matchedPerson == nil {
+				nameParts := strings.Fields(officialName)
+				if len(nameParts) >= 2 {
+					// Handle "FirstName LastName" -> "LastName, FirstName"
+					lastName := nameParts[len(nameParts)-1]
+					firstName := strings.Join(nameParts[:len(nameParts)-1], " ")
+					reversedName := fmt.Sprintf("%s, %s", lastName, firstName)
+					
+					for _, person := range persons {
+						if strings.EqualFold(person.PersonFullName, reversedName) {
+							matchedPerson = &person
+							break
+						}
+					}
 				}
 			}
 		}
@@ -94,17 +119,14 @@ func main() {
 			continue
 		}
 
-		// Get the headshot URL from City API
-		headshotURL := matchedPerson.PersonPhotoURL
-		if headshotURL == "" {
-			log.Printf("  ℹ️  No headshot URL available")
-			continue
-		}
-
+		// Construct the headshot URL from Legistar
+		// The City API provides PersonGUID which can be used to construct image URLs
+		headshotURL := fmt.Sprintf("https://chicago.legistar.com/people/%d", matchedPerson.PersonID)
+		
 		// Update the official in database
 		updateData := map[string]interface{}{
 			"image_url":            headshotURL,
-			"city_api_person_id":   matchedPerson.PersonID,
+			"city_api_person_id":   fmt.Sprintf("%d", matchedPerson.PersonID),
 		}
 
 		var result []map[string]interface{}
