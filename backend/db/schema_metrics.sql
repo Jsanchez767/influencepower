@@ -133,14 +133,17 @@ CREATE INDEX IF NOT EXISTS idx_transparency_records_official_id ON transparency_
 CREATE INDEX IF NOT EXISTS idx_transparency_records_type ON transparency_records(record_type);
 
 -- Update triggers
+DROP TRIGGER IF EXISTS update_official_metrics_updated_at ON official_metrics;
 CREATE TRIGGER update_official_metrics_updated_at 
     BEFORE UPDATE ON official_metrics 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_ward_metrics_updated_at ON ward_metrics;
 CREATE TRIGGER update_ward_metrics_updated_at 
     BEFORE UPDATE ON ward_metrics 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_constituent_services_updated_at ON constituent_services;
 CREATE TRIGGER update_constituent_services_updated_at 
     BEFORE UPDATE ON constituent_services 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
