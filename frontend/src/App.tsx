@@ -12,7 +12,7 @@ interface Seat {
 function App() {
   const [officials, setOfficials] = useState<Official[]>([]);
   const [selectedOfficial, setSelectedOfficial] = useState<Official | null>(null);
-  const [filter, setFilter] = useState<'all' | 'democrat' | 'republican'>('all');
+  const [filter, setFilter] = useState<'all' | 'democratic' | 'independent'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,17 +36,59 @@ function App() {
 
   const getMockData = (): Official[] => {
     return [
-      { id: 1, name: 'Brandon Johnson', ward: null, party: 'Democrat', role: 'Mayor', contact: '(312) 744-3300', email: 'mayor@cityofchicago.org' },
-      ...Array.from({ length: 50 }, (_, i) => ({
-        id: i + 2,
-        name: `Alderman ${i + 1}`,
-        ward: i + 1,
-        party: i % 3 === 0 ? 'Republican' : 'Democrat',
-        role: 'Alderman',
-        contact: `(312) 744-${3000 + i}`,
-        email: `ward${String(i + 1).padStart(2, '0')}@cityofchicago.org`
-      })),
-      { id: 52, name: 'Anna Valencia', ward: null, party: 'Democrat', role: 'City Clerk', contact: '(312) 744-6861', email: 'clerk@cityofchicago.org' }
+      { id: 1, name: 'Brandon Johnson', ward: null, party: 'Democratic', role: 'Mayor', contact: 'N/A', email: 'mayor@cityofchicago.org' },
+      { id: 2, name: 'Anna Valencia', ward: null, party: 'Democratic', role: 'City Clerk', contact: 'N/A', email: 'cityclerk@cityofchicago.org' },
+      { id: 3, name: 'Melissa Conyears-Ervin', ward: null, party: 'Democratic', role: 'City Treasurer', contact: 'N/A', email: 'treasurer@cityofchicago.org' },
+      { id: 4, name: 'Daniel La Spata', ward: 1, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward01@cityofchicago.org' },
+      { id: 5, name: 'Brian Hopkins', ward: 2, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward02@cityofchicago.org' },
+      { id: 6, name: 'Pat Dowell', ward: 3, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward03@cityofchicago.org' },
+      { id: 7, name: 'Lamont Robinson', ward: 4, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward04@cityofchicago.org' },
+      { id: 8, name: 'Desmon Yancy', ward: 5, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward05@cityofchicago.org' },
+      { id: 9, name: 'William Hall', ward: 6, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward06@cityofchicago.org' },
+      { id: 10, name: 'Greg Mitchell', ward: 7, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward07@cityofchicago.org' },
+      { id: 11, name: 'Michelle Harris', ward: 8, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward08@cityofchicago.org' },
+      { id: 12, name: 'Anthony Beale', ward: 9, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward09@cityofchicago.org' },
+      { id: 13, name: 'Peter Chico', ward: 10, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward10@cityofchicago.org' },
+      { id: 14, name: 'Nicole Lee', ward: 11, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward11@cityofchicago.org' },
+      { id: 15, name: 'Julia Ramirez', ward: 12, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward12@cityofchicago.org' },
+      { id: 16, name: 'Marty Quinn', ward: 13, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward13@cityofchicago.org' },
+      { id: 17, name: 'Jeylú Gutiérrez', ward: 14, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward14@cityofchicago.org' },
+      { id: 18, name: 'Ray Lopez', ward: 15, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward15@cityofchicago.org' },
+      { id: 19, name: 'Stephanie Coleman', ward: 16, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward16@cityofchicago.org' },
+      { id: 20, name: 'David Moore', ward: 17, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward17@cityofchicago.org' },
+      { id: 21, name: 'Derrick Curtis', ward: 18, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward18@cityofchicago.org' },
+      { id: 22, name: 'Matt O\'Shea', ward: 19, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward19@cityofchicago.org' },
+      { id: 23, name: 'Jeanette Taylor', ward: 20, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward20@cityofchicago.org' },
+      { id: 24, name: 'Ronnie Mosley', ward: 21, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward21@cityofchicago.org' },
+      { id: 25, name: 'Mike Rodriguez', ward: 22, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward22@cityofchicago.org' },
+      { id: 26, name: 'Silvana Tabares', ward: 23, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward23@cityofchicago.org' },
+      { id: 27, name: 'Monique Scott', ward: 24, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward24@cityofchicago.org' },
+      { id: 28, name: 'Byron Sigcho-Lopez', ward: 25, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward25@cityofchicago.org' },
+      { id: 29, name: 'Jessie Fuentes', ward: 26, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward26@cityofchicago.org' },
+      { id: 30, name: 'Red Burnett', ward: 27, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward27@cityofchicago.org' },
+      { id: 31, name: 'Jason Ervin', ward: 28, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward28@cityofchicago.org' },
+      { id: 32, name: 'Chris Taliaferro', ward: 29, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward29@cityofchicago.org' },
+      { id: 33, name: 'Ruth Cruz', ward: 30, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward30@cityofchicago.org' },
+      { id: 34, name: 'Felix Cardona', ward: 31, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward31@cityofchicago.org' },
+      { id: 35, name: 'Scott Waguespack', ward: 32, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward32@cityofchicago.org' },
+      { id: 36, name: 'Rossana Rodríguez', ward: 33, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward33@cityofchicago.org' },
+      { id: 37, name: 'Bill Conway', ward: 34, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward34@cityofchicago.org' },
+      { id: 38, name: 'Anthony Quezada', ward: 35, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward35@cityofchicago.org' },
+      { id: 39, name: 'Gil Villegas', ward: 36, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward36@cityofchicago.org' },
+      { id: 40, name: 'Emma Mitts', ward: 37, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward37@cityofchicago.org' },
+      { id: 41, name: 'Nick Sposato', ward: 38, party: 'Independent', role: 'Alderman', contact: 'N/A', email: 'ward38@cityofchicago.org' },
+      { id: 42, name: 'Sam Nugent', ward: 39, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward39@cityofchicago.org' },
+      { id: 43, name: 'Andre Vasquez', ward: 40, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward40@cityofchicago.org' },
+      { id: 44, name: 'Anthony Napolitano', ward: 41, party: 'Independent', role: 'Alderman', contact: 'N/A', email: 'ward41@cityofchicago.org' },
+      { id: 45, name: 'Brendan Reilly', ward: 42, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward42@cityofchicago.org' },
+      { id: 46, name: 'Timmy Knudsen', ward: 43, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward43@cityofchicago.org' },
+      { id: 47, name: 'Bennett Lawson', ward: 44, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'Ward44@CityofChicago.org' },
+      { id: 48, name: 'Jim Gardiner', ward: 45, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward45@cityofchicago.org' },
+      { id: 49, name: 'Angela Clay', ward: 46, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward46@cityofchicago.org' },
+      { id: 50, name: 'Matt Martin', ward: 47, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward47@cityofchicago.org' },
+      { id: 51, name: 'Leni Manaa-Hoppenworth', ward: 48, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward48@cityofchicago.org' },
+      { id: 52, name: 'Maria Hadden', ward: 49, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward49@cityofchicago.org' },
+      { id: 53, name: 'Debra Silverstein', ward: 50, party: 'Democratic', role: 'Alderman', contact: 'N/A', email: 'ward50@cityofchicago.org' }
     ];
   };
 
@@ -269,40 +311,40 @@ function App() {
             All Members
           </button>
           <button 
-            onClick={() => setFilter('democrat')} 
+            onClick={() => setFilter('democratic')} 
             style={{ 
               padding: '12px 24px', 
               fontSize: '0.9375rem', 
               fontWeight: 700, 
-              border: filter === 'democrat' ? '2px solid #2563eb' : '2px solid #e5e7eb', 
-              background: filter === 'democrat' ? '#2563eb' : 'white', 
-              color: filter === 'democrat' ? 'white' : '#6b7280', 
+              border: filter === 'democratic' ? '2px solid #2563eb' : '2px solid #e5e7eb', 
+              background: filter === 'democratic' ? '#2563eb' : 'white', 
+              color: filter === 'democratic' ? 'white' : '#6b7280', 
               borderRadius: '12px', 
               cursor: 'pointer',
               fontFamily: "'DM Sans', sans-serif",
               letterSpacing: '-0.01em',
-              boxShadow: filter === 'democrat' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
+              boxShadow: filter === 'democratic' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
             }}
           >
             Democrats
           </button>
           <button 
-            onClick={() => setFilter('republican')} 
+            onClick={() => setFilter('independent')} 
             style={{ 
               padding: '12px 24px', 
               fontSize: '0.9375rem', 
               fontWeight: 700, 
-              border: filter === 'republican' ? '2px solid #2563eb' : '2px solid #e5e7eb', 
-              background: filter === 'republican' ? '#2563eb' : 'white', 
-              color: filter === 'republican' ? 'white' : '#6b7280', 
+              border: filter === 'independent' ? '2px solid #2563eb' : '2px solid #e5e7eb', 
+              background: filter === 'independent' ? '#2563eb' : 'white', 
+              color: filter === 'independent' ? 'white' : '#6b7280', 
               borderRadius: '12px', 
               cursor: 'pointer',
               fontFamily: "'DM Sans', sans-serif",
               letterSpacing: '-0.01em',
-              boxShadow: filter === 'republican' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
+              boxShadow: filter === 'independent' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
             }}
           >
-            Republicans
+            Independents
           </button>
         </div>
 
