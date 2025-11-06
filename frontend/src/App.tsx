@@ -138,8 +138,99 @@ function App() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", minHeight: '100vh', background: '#f8f9fa', color: '#1a1a1a' }}>
+      {/* Hero Section with City Hall Building */}
+      <section style={{ position: 'relative', width: '100%', height: 0, paddingBottom: '56.25%', background: '#E8E5DF' }}>
+        <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          
+          {/* City Hall Building - Base layer */}
+          <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 10, top: '-25%', transform: 'translateY(25%)' }}>
+            <img
+              src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2976ede320a2c6e6e27_city%20hall%20building.png"
+              alt="City Hall Building"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+            />
+          </div>
+
+          {/* HALL Text - Below everything */}
+          <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }}>
+            <img
+              src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2975695c32b41340967_text%2C%20hall.png"
+              alt="Hall"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+            />
+          </div>
+
+          {/* CITY Text - In front of building */}
+          <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 20 }}>
+            <img
+              src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b297e001e99022c35bc8_text%2C%20City.png"
+              alt="City"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+            />
+          </div>
+
+          {/* Chicago Text with Stars */}
+          <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
+            <img
+              src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2977fd3a46a6280b698_Chicago%20w%20stars.png"
+              alt="Chicago with stars"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+            />
+          </div>
+
+          {/* Chicago Ribbon */}
+          <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 30 }}>
+            <img
+              src="https://cdn.prod.website-files.com/68adde99fad93ee4c3740168/6907b2972e758df565d5f921_Chicago%20ribbon.png"
+              alt="Chicago ribbon"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Stats */}
+      <section style={{ background: 'white', borderBottom: '4px solid #C8102E', padding: '32px 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: 900, marginBottom: '8px' }}>
+                51
+              </div>
+              <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                Elected Officials
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: 900, marginBottom: '8px' }}>
+                50
+              </div>
+              <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                City Wards
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: 900, marginBottom: '8px' }}>
+                2.7M
+              </div>
+              <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                Residents Served
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: '#C8102E', fontSize: '2.5rem', fontWeight: 900, marginBottom: '8px' }}>
+                100%
+              </div>
+              <div style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                Transparency
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '40px 20px' }}>
-        {/* Header / Hero Section */}
+        {/* Header / Title Section */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#1a1a1a', marginBottom: '16px' }}>
             The City Council of the City of <span style={{ color: '#2563eb' }}>Chicago</span>
