@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchOfficials } from './services/api';
 import type { Official } from './types';
 
@@ -10,8 +11,8 @@ interface Seat {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [officials, setOfficials] = useState<Official[]>([]);
-  const [selectedOfficial, setSelectedOfficial] = useState<Official | null>(null);
   const [filter, setFilter] = useState<'all' | 'democratic' | 'independent'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -360,7 +361,7 @@ function App() {
                   <g
                     key={idx}
                     transform={`translate(${seat.x}, ${seat.y}) rotate(${seat.rotation})`}
-                    onClick={() => { setSelectedOfficial(seat.official); }}
+                    onClick={() => { navigate(`/official/${seat.official.id}`); }}
                     style={{ cursor: 'pointer' }}
                   >
                     <rect
@@ -400,7 +401,7 @@ function App() {
               {mayor && (
                 <g
                   transform="translate(450, 380)"
-                  onClick={() => { setSelectedOfficial(mayor); }}
+                  onClick={() => { navigate(`/official/${mayor.id}`); }}
                   style={{ cursor: 'pointer' }}
                 >
                   <rect 
@@ -445,7 +446,7 @@ function App() {
               {clerk && (
                 <g
                   transform="translate(450, 270)"
-                  onClick={() => { setSelectedOfficial(clerk); }}
+                  onClick={() => { navigate(`/official/${clerk.id}`); }}
                   style={{ cursor: 'pointer' }}
                 >
                   <rect 
@@ -489,109 +490,6 @@ function App() {
           </div>
         </div>
       </div>
-
-      {/* Modal */}
-      {selectedOfficial && (
-        <div 
-          onClick={() => setSelectedOfficial(null)} 
-          style={{ 
-            position: 'fixed', 
-            inset: 0, 
-            background: 'rgba(0,0,0,0.7)', 
-            backdropFilter: 'blur(4px)', 
-            zIndex: 50, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '20px' 
-          }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ 
-              background: 'white', 
-              borderRadius: '20px', 
-              maxWidth: '600px', 
-              width: '100%', 
-              maxHeight: '90vh', 
-              overflowY: 'auto', 
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3)', 
-              position: 'relative' 
-            }}
-          >
-            {/* Modal Header */}
-            <div style={{ padding: '32px 32px 24px', borderBottom: '1px solid #e5e7eb' }}>
-              <button 
-                onClick={() => setSelectedOfficial(null)} 
-                style={{ 
-                  position: 'absolute', 
-                  top: '20px', 
-                  right: '20px', 
-                  background: '#f3f4f6', 
-                  border: 'none', 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  cursor: 'pointer', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  fontSize: '20px', 
-                  color: '#6b7280' 
-                }}
-              >
-                ×
-              </button>
-              
-              <img 
-                src={`https://i.pravatar.cc/150?img=${selectedOfficial.id + 10}`}
-                alt={selectedOfficial.name}
-                style={{ width: '120px', height: '120px', borderRadius: '16px', objectFit: 'cover', marginBottom: '20px' }}
-              />
-              
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '8px', letterSpacing: '-0.02em' }}>
-                {selectedOfficial.name}
-              </h2>
-              <p style={{ fontSize: '1.125rem', color: '#6b7280', fontWeight: 600, marginBottom: '24px' }}>
-                {selectedOfficial.role}{selectedOfficial.ward && ` - Ward ${selectedOfficial.ward}`}
-              </p>
-            </div>
-
-            {/* Modal Body */}
-            <div style={{ padding: '32px' }}>
-              <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#f9fafb', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '100px' }}>Party</span>
-                  <span 
-                    style={{ 
-                      display: 'inline-block', 
-                      padding: '6px 16px', 
-                      borderRadius: '8px', 
-                      fontSize: '0.875rem', 
-                      fontWeight: 700, 
-                      letterSpacing: '0.02em',
-                      background: selectedOfficial.party === 'Democrat' ? '#dbeafe' : '#fee2e2',
-                      color: selectedOfficial.party === 'Democrat' ? '#1e40af' : '#991b1b'
-                    }}
-                  >
-                    {selectedOfficial.party}
-                  </span>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#f9fafb', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '100px' }}>Phone</span>
-                  <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1a1a1a' }}>{selectedOfficial.contact}</span>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#f9fafb', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '100px' }}>Email</span>
-                  <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1a1a1a' }}>{selectedOfficial.email}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

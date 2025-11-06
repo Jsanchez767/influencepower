@@ -10,13 +10,14 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.462.0",
-    "motion": "^11.11.17",
+    "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.1",
-    "@radix-ui/react-avatar": "^1.1.1"
+    "lucide-react": "^0.462.0",
+    "motion": "^11.11.17",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
